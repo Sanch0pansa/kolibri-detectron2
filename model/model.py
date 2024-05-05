@@ -124,8 +124,8 @@ if __name__ == '__main__':
 
     # m.train(
     #     d.train_dataset_name,
-    #     max_iterations=20
+    #     max_iterations=1000
     # )
 
     m.init_predictor()
-    m.visualize_prediction(d.valid_dataset[2]['file_name'], d.get_metadata("val"))
+    m.visualize_prediction(d.valid_dataset[3]['file_name'], d.get_metadata("val"))
