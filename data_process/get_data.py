@@ -5,12 +5,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-client = yadisk.Client(token=os.environ.get('YANDEX_TOKEN'))
 
-with client:
-    client.download(os.environ.get("YANDEX_PATH_TO_DATASET"), "updated_dataset.zip")
+def load(token, path):
+    client = yadisk.Client(token=token)
 
-with ZipFile("updated_dataset.zip", 'r') as zObject:
-    zObject.extractall(path="../data")
+    with client:
+        client.download(path, "updated_dataset.zip")
 
-os.remove("updated_dataset.zip")
+    with ZipFile("updated_dataset.zip", 'r') as zObject:
+        zObject.extractall(path="../data")
+
+    os.remove("updated_dataset.zip")
+
+
+if __name__ == '__main__':
+    load(os.environ.get('YANDEX_TOKEN'), os.environ.get("YANDEX_PATH_TO_DATASET"))
