@@ -8,6 +8,8 @@ from data_process import Dataset
 from multiprocessing import freeze_support
 from PIL import Image
 from detectron2.utils.visualizer import ColorMode
+from matplotlib.pyplot import imshow
+import numpy as np
 import cv2
 import os
 
@@ -73,7 +75,7 @@ class Model:
     def __call__(self, image):
         return self.predictor(image)
 
-    def visualize_prediction(self, image, metadata):
+    def visualize_prediction(self, image, metadata, notebook=False):
         im = cv2.imread(image)
         outputs = self(im)
         v = Visualizer(im[:, :, ::-1],
@@ -84,7 +86,10 @@ class Model:
         # print(outputs["instances"])
         out = v.draw_instance_predictions(outputs["instances"])
         img = Image.fromarray(cv2.cvtColor(out.get_image(), cv2.COLOR_BGR2RGB))
-        img.show(f"prediction")
+        if not notebook:
+            img.show(f"prediction")
+        else:
+            imshow(np.asarray(img))
 
 
 class RCNN(Model):
@@ -98,6 +103,7 @@ class RCNN(Model):
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = num_classes
         self.cfg.MODEL.ROI_BOX_HEAD.CLS_AGNOSTIC_BBOX_REG = cls_agnostic_bbox_reg
         self.cfg.MODEL.ROI_BOX_HEAD.TRAIN_ON_PRED_BOXES = train_on_prediction_boxes
+        self.cfg.TEST.DETECTIONS_PER_IMAGE = 1500
 
 
 class RetinaNet(Model):
@@ -107,6 +113,7 @@ class RetinaNet(Model):
                      ):
         self.cfg.MODEL.RETINANET.NUM_CLASSES = num_classes
         self.cfg.MODEL.RETINANET.SCORE_THRESH_TEST = score_thresh_test
+        self.cfg.TEST.DETECTIONS_PER_IMAGE = 1500
 
 
 if __name__ == '__main__':
