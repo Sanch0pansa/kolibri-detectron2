@@ -8,23 +8,29 @@ import cv2
 
 
 class Dataset:
-    def __init__(self, path_to_yaml, segmentation=False):
+    def __init__(self, path_to_yaml, segmentation=False, single_class=False):
         self.path_to_yaml = path_to_yaml
         self.path_to_dataset = os.path.dirname(path_to_yaml)
         self.segmentation = segmentation
+        self.single_class = single_class
 
         self.config = {
             "train": "./images/train/",
             "val": "./images/valid/",
             "nc": 2,
-            "names": ['defect', 'output']
+            "names": ['defect', 'output'],
         }
 
         with open(self.path_to_yaml) as stream:
             try:
                 self.config = yaml.safe_load(stream)
+
             except yaml.YAMLError as exc:
                 print(exc)
+
+        if self.single_class:
+            self.config["nc"] = 1
+            self.config["names"] = ['output']
 
         self.class_number = self.config['nc']
         self.class_names = self.config['names']
@@ -61,7 +67,7 @@ class Dataset:
         with open(label_path, 'r') as file:
             for line in file:
                 parts = line.strip().split()
-                category_id = int(parts[0])
+                category_id = int(parts[0]) if not self.single_class else 0
                 x, y, w, h = map(float, parts[1:])
                 xbr = x + w / 2
                 ybr = y + h / 2
